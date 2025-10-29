@@ -1,59 +1,66 @@
-import Course from "./components/Course";
+import { useState } from 'react'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import Persons from './components/Persons'
 
 const App = () => {
-  const courses = [
-    {
-      id: 1,
-      name: "Half Stack application development",
-      parts: [
-        {
-          name: "Fundamentals of React",
-          exercises: 10,
-          id: 1,
-        },
-        {
-          name: "Using props to pass data",
-          exercises: 7,
-          id: 2,
-        },
-        {
-          name: "State of a component",
-          exercises: 14,
-          id: 3,
-        },
-        {
-          name: "Redux",
-          exercises: 11,
-          id: 4,
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Node.js",
-      parts: [
-        {
-          name: "Routing",
-          exercises: 3,
-          id: 1,
-        },
-        {
-          name: "Middlewares",
-          exercises: 7,
-          id: 2,
-        },
-      ],
-    },
-  ];
+  const [persons, setPersons] = useState([
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
+  ])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filter, setFilter] = useState('')
+
+  const handleNameChange = (event) => setNewName(event.target.value)
+  const handleNumberChange = (event) => setNewNumber(event.target.value)
+  const handleFilterChange = (event) => setFilter(event.target.value)
+
+  const addPerson = (event) => {
+    event.preventDefault()
+    const existing = persons.find(p => p.name.toLowerCase() === newName.toLowerCase())
+
+    if (existing) {
+      alert(`${newName} is already added to phonebook`)
+      return
+    }
+
+    const personObject = {
+      name: newName,
+      number: newNumber,
+      id: persons.length + 1
+    }
+
+    setPersons(persons.concat(personObject))
+    setNewName('')
+    setNewNumber('')
+  }
+
+  const personsToShow = filter
+    ? persons.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
+    : persons
 
   return (
     <div>
-      <h1>Web Development Curriculum</h1>
-      {courses.map((course) => (
-        <Course key={course.id} course={course} />
-      ))}
-    </div>
-  );
-};
+      <h2>Phonebook</h2>
 
-export default App;
+      <Filter value={filter} onChange={handleFilterChange} />
+
+      <h3>Add a new</h3>
+      <PersonForm
+        onSubmit={addPerson}
+        nameValue={newName}
+        numberValue={newNumber}
+        onNameChange={handleNameChange}
+        onNumberChange={handleNumberChange}
+      />
+
+      <h3>Numbers</h3>
+      <Persons persons={personsToShow} />
+    </div>
+  )
+}
+
+export default App
